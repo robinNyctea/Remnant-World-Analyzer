@@ -41,7 +41,18 @@ sublocations = {
     "BrainBug": "StrangePass",
     "Wisp": "CircletHatchery",
     "FetidPool": "FetidPools",
-    "FlickeringHorror": "HallOfWhispers"
+    "FlickeringHorror": "HallOfWhispers",
+    "RatRider": "CrimsonHold",
+    "IceSkimmer": "FrieranSea",
+    "UrikkiBlademasters": "ValenhaagMines",
+    "BlizzardMage": "WutheringKeep",
+    "ShieldWarden": "Exiles'sTrench",
+    "Afterbirth": "ChillwindHovel",
+    "ShamanFlames": "GraveOfTheElders",
+    "WarningTotems": "Magir'sDirge",
+    "FrozenLords": "Judgement'sSpear",
+    "TheJackal": "WildReach",
+    "CreepersPeeper": "Watcher'sHollow",
 }
 
 mainLocations = {
@@ -52,7 +63,7 @@ mainLocations = {
  "Jungle Overworld Zone1": "TheVerdantStrand",
  "Jungle Overworld Zone2": "TheScaldingGlade",
  "Swamp Overworld Zone1": "TheFetidGlade",
- "Swamp Overworld Zone2": "TheMistFen"
+ "Swamp Overworld Zone2": "TheMistFen",
 }
 
 function loadFile(o) {
@@ -92,7 +103,7 @@ function getWorldData(textArray, worldMode) {
     zones["Rhom"] = {}
     zones["Yaesha"] = {}
     zones["Corsus"] = {}
-
+    zones["Reisum"] = {}
     var currentMainLocation;
 
     if (worldMode == "#adventure") {
@@ -111,7 +122,6 @@ function getWorldData(textArray, worldMode) {
         var inSmallDungeon = true;
 
         textLine = textArray[i]
-
         //translate world/region names to readable text
         if ( textLine.search("World_City") != -1) {
             zone = "Earth"
@@ -122,10 +132,14 @@ function getWorldData(textArray, worldMode) {
         if ( textLine.search("World_Jungle") != -1) {
             zone = "Yaesha"
         }
-        if ( textLine.search("World_Swamp") != -1) {
+        if (textLine.search("World_Swamp") != -1) {
+            console.log(textLine);
             zone = "Corsus"
         }
-
+        if (textLine.search("World_Snow") != -1) {
+            console.log(textLine);
+            zone = "Reisum"
+        }
         lastEventname = eventName
 
         //look for side dungeons
@@ -135,19 +149,28 @@ function getWorldData(textArray, worldMode) {
             currentSublocation = sublocations[eventName]
             if (currentSublocation == undefined){
                 currentSublocation = "Not added yet"
+                console.log(textLine);
             }
             inSmallDungeon = true
         }
         //look for overworld POI's
         if (textLine.search("OverworldPOI") != -1) {
             eventType = "Point of Interest"
-            eventName = textLine.split("/")[3].split("_")[2]
+            
+            try {
+                eventName = textLine.split("/")[3].split("_")[2];
+            } catch (err) {
+                console.log("test");
+                console.log(textLine.split("/")[3].split(" ")[2])
+                eventName = textLine.split("/")[3].split("_")[2]
+            }
             currentSublocation = currentMainLocation
             if (worldMode == "#adventure") {
                 currentSublocation = ''
             }
             if (currentSublocation == undefined){
                 currentSublocation = "Not added yet"
+                console.log(textLine);
             }
             inSmallDungeon = true
         }
@@ -159,6 +182,7 @@ function getWorldData(textArray, worldMode) {
             currentSublocation = sublocations[eventName]
             if (currentSublocation == undefined){
                 currentSublocation = "Not added yet"
+                console.log(textLine);
             }
         }
 
@@ -169,6 +193,7 @@ function getWorldData(textArray, worldMode) {
             currentSublocation = sublocations[eventName]
             if (currentSublocation == undefined){
                 currentSublocation = "Not added yet"
+                console.log(textLine);
             }
         }
 
@@ -179,6 +204,7 @@ function getWorldData(textArray, worldMode) {
             currentSublocation = sublocations[eventName]
             if (currentSublocation == undefined){
                 currentSublocation = "Not added yet"
+                console.log(textLine);
             }
         }
 
@@ -197,7 +223,7 @@ function getWorldData(textArray, worldMode) {
         if (textLine.search("Overworld_Zone") != -1) {
             currentMainLocation = textLine.split("/")[3].split("_")[1] + " " + textLine.split("/")[3].split("_")[2] + " " +  textLine.split("/")[3].split("_")[3]
             currentMainLocation = mainLocations[currentMainLocation]
-
+            
         }
 
         //Renames the bosses
@@ -228,7 +254,16 @@ function getWorldData(textArray, worldMode) {
                  .replace('LastWill', 'SupplyRunAssaultRifle')
                  .replace('SwampGuardian','Ixillis')
                  .replace('Splitter','RiphideLetosArmor')
-
+                 .replace('IceSkimmer','Sebum')
+                 .replace('UrikkiBlademasters','Tian')
+                 .replace('RatRider', 'BrudvaakAndVargr')
+                 .replace('ShieldWarden', 'Obryk')
+                 .replace('BlizzardMage', 'Ikro')
+                 .replace('Afterbirth', 'KrallMother')
+                 .replace('ShamanFlames', 'GraveSiege')
+                 .replace('FrozenLords', 'MagirTest')
+                 .replace('TheJackal', 'Erfor')
+                 .replace('CreepersPeeper', "Creeper'sPeeper")
             }
             //This populates the table for data to be pulled
             if (zone != undefined && eventType != undefined && eventName != undefined) {
@@ -250,7 +285,13 @@ function getWorldData(textArray, worldMode) {
                         if (worldMode == "#adventure") {
                             mainLocationText = ''
                         } else {
-                            mainLocationText = currentMainLocation.split(/(?=[A-Z])/).join(' ') + ": "
+                            try {
+                                mainLocationText = currentMainLocation.split(/(?=[A-Z])/).join(' ') + ": "
+                            } catch (err) {
+                                console.log(currentMainLocation);
+                                mainLocationText = '';
+                            }
+                            
                         }
 
                         html = "<tr><td>" + zone + ": " + mainLocationText + currentSublocation.split(/(?=[A-Z])/).join(' ') +  "</td><td>" + eventType + "</td><td>" + eventName.split(/(?=[A-Z])/).join(' ') + "</td></tr>"
@@ -282,9 +323,15 @@ function showDataFile(e, o){
     updateFilters(true)
 
     text = e.target.result
-    text = text.split("/Game/Campaign_Main/Quest_Campaign_Ward13.Quest_Campaign_Ward13")[0]
-    text = text.split("/Game/Campaign_Main/Quest_Campaign_City.Quest_Campaign_City")[1].replace(/Game/g,"\n")
-
+    try {
+        text = text.split("/Game/Campaign_Main/Quest_Campaign_Ward13.Quest_Campaign_Ward13")[0]
+        text = text.split("/Game/Campaign_Main/Quest_Campaign_City.Quest_Campaign_City")[1].replace(/Game/g, "\n")
+    } catch (err) {
+        text = text.split("/Campaign_Clementine/WaypointTextures/T_UI_Waypoint_DeepfrostExpanse.T_UI_Waypoint_DeepfrostExpanse")[1].replace(/Game/g, "\n");
+        console.log(text)
+    }
+    
+    
     textArray = text.split("\n")
 
    adText = e.target.result
@@ -369,12 +416,14 @@ updateTable = function() {
     rhom = document.getElementById('f-rhom').checked
     corsus = document.getElementById('f-corsus').checked
     yaesha = document.getElementById('f-yaesha').checked
+    yaesha = document.getElementById('f-reisum').checked
     $('td').each(function() {
         if (
         ($(this).text().search('Earth')!=-1 && !earth) ||
         ($(this).text().search('Rhom')!=-1 && !rhom) ||
         ($(this).text().search('Corsus')!=-1 && !corsus) ||
-        ($(this).text().search('Yaesha')!=-1 && !yaesha))
+        ($(this).text().search('Yaesha')!=-1 && !yaesha)||
+        ($(this).text().search('Reisum')!=-1 && !yaesha))
         {
             $(this).parent().hide()
         }
